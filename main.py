@@ -67,9 +67,23 @@ def pick(candidates):
 def main():
     excuse = pick(CANDIDATES)
     import os
+    import sys
     os.makedirs("/output", exist_ok=True)
     with open("/output/entry.txt", "w", encoding="utf-8") as f:
         f.write(excuse)
+    # Verify the output round-trips: read it back and compare byte-for-byte
+    # with the selected line, and re-check the gate (1-200 chars, one line).
+    with open("/output/entry.txt", "rb") as f:
+        written = f.read()
+    if written != excuse.encode("utf-8"):
+        print("error: /output/entry.txt does not match the selected line",
+              file=sys.stderr)
+        sys.exit(1)
+    text = written.decode("utf-8")
+    if not (1 <= len(text) <= 200) or "\n" in text:
+        print("error: output fails the gate (1-200 chars, single line)",
+              file=sys.stderr)
+        sys.exit(1)
     print(excuse)
 
 
